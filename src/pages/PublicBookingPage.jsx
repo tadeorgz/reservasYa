@@ -296,11 +296,7 @@ function PublicBookingPage() {
                         ) : (
 
                             <form onSubmit={handleSubmit} className="space-y-6">
-                                {errorMessage && (
-                                    <p className="bg-red-50 text-red-700 border border-red-200 rounded-xl p-3 text-sm font-semibold">
-                                        {errorMessage}
-                                    </p>
-                                )}
+
 
                                 {/* PASO 1: SERVICIOS (Siempre visible) */}
                                 <BookingStep
@@ -467,7 +463,11 @@ function PublicBookingPage() {
                                                 />
                                             )}
                                         </div>
-
+                                        {errorMessage && (
+                                            <p className="bg-red-50 text-red-700 border border-red-200 rounded-xl p-3 text-sm font-semibold">
+                                                {errorMessage}
+                                            </p>
+                                        )}
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
