@@ -21,7 +21,7 @@ export function getDashboardStats(appointments, services) {
     const monthlyIncome = monthlyAppointments
         .filter(
             (appointment) =>
-                appointment.status === 'confirmed' ||
+                // appointment.status === 'confirmed' ||
                 appointment.status === 'completed'
         )
         .reduce((total, appointment) => total + Number(appointment.price || 0), 0);

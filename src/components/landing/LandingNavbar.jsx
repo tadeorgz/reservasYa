@@ -1,4 +1,3 @@
-import { CalendarCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -30,9 +29,10 @@ export default function LandingNavbar() {
                     onClick={() => handleScrollToSection("inicio")}
                     className="flex items-center gap-2 text-xl font-black cursor-pointer"
                 >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#199462] to-[#D4AF37]">                        <CalendarCheck size={20} />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#199462] to-[#D4AF37]">
+                        <img className="h-full w-full object-contain rounded-xl" src="LOGO-RY.webp" alt="ReservasYa Logo " />
                     </span>
-                    ReservaYa
+                    ReservasYa
                 </button>
 
                 <div className="hidden items-center gap-8 text-sm font-semibold text-white/75 md:flex">

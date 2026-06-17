@@ -47,7 +47,7 @@ function LoginPage() {
         <div className="min-h-screen flex flex-col items-center p-6 justify-center bg-brand-gradient">
             <div className="w-full max-w-md text-center">
                 <h1 className="text-3xl font-bold mb-2 text-white">
-                    ReservaYa
+                    ReservasYa
                 </h1>
                 <p className="text-white/80 text-sm">
                     Inicia sesión para gestionar tu negocio.

@@ -110,7 +110,7 @@ function BusinessSettingsPage() {
             <div className="lg:max-w-4/5 max-w-11/12 mx-auto flex items-center justify-between mb-8">
                 <button
                     onClick={() => navigate('/dashboard')}
-                    className="text-white/80 hover:text-white flex items-center gap-2 font-medium transition-colors cursor-pointer"
+                    className="text-white/80 hover:text-white flex cursor-pointer items-center gap-2 font-medium transition-colors"
                 >
                     <ArrowLeft size={18} />
                     Volver al dashboard
@@ -284,6 +284,36 @@ function BusinessSettingsPage() {
                         />
                     </SettingsCard>
 
+                    <SettingsCard title="Plan y suscripción">
+                        <div className="md:col-span-2 bg-brand-surface rounded-2xl p-5 border border-gray-200">
+                            <p className=" text-brand-text/60">
+                                Plan actual
+                            </p>
+
+                            <p className="text-2xl font-semibold text-brand-text mt-1">
+                                {getPlanName(settings.subscription?.plan)}
+                            </p>
+
+                            <p className="mt-3 text-sm text-brand-text/70">
+                                Estado: {getStatusName(settings.subscription?.status)}
+                            </p>
+
+                            <p className="mt-1 text-sm text-brand-text/70">
+                                Prueba gratis hasta:
+                                {' '}
+                                {formatDate(settings.subscription?.trialEndsAt)}
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => navigate('/dashboard/planes')}
+                                className="mt-5 bg-brand-green text-white font-semibold cursor-pointer px-5 py-3 rounded-xl hover:bg-brand-green/80 transition-all"
+                            >
+                                Cambiar plan
+                            </button>
+                        </div>
+                    </SettingsCard>
+
                     <SettingsCard title="Reservas">
                         <Input
                             label="Tiempo mínimo antes de reservar"
@@ -438,6 +468,41 @@ function Select({ label, value, onChange, options }) {
             </select>
         </label>
     );
+}
+
+function getPlanName(plan) {
+    switch (plan) {
+        case 'standard':
+            return 'Estándar';
+
+        case 'pro':
+            return 'Profesional';
+
+        default:
+            return 'Gratis';
+    }
+}
+
+function getStatusName(status) {
+    switch (status) {
+        case 'active':
+            return 'Activo';
+
+        case 'trial':
+            return 'Prueba gratis';
+
+        case 'expired':
+            return 'Vencido';
+
+        default:
+            return status || '-';
+    }
+}
+
+function formatDate(date) {
+    if (!date) return '-';
+
+    return new Date(date).toLocaleDateString('es-UY');
 }
 
 function generateSlug(text) {

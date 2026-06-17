@@ -15,7 +15,7 @@ function BusinessTypePage() {
             <div className="w-full lg:max-w-4/5 max-w-11/12 text-center mb-8">
                 <button
                     onClick={() => navigate(-1)}
-                    className="text-white py-2 px-4 rounded-lg mb-4 hover:bg-white/10 transition-all flex items-center"
+                    className="text-white cursor-pointer py-2 px-4 rounded-lg mb-4 hover:bg-white/10 transition-all flex items-center"
                 >
                     <CircleArrowLeft className="inline-block mr-2" />
                 </button>
@@ -34,7 +34,7 @@ function BusinessTypePage() {
                     <button
                         key={type.id}
                         onClick={() => handleSelectType(type)}
-                        className="bg-brand-bg text-left p-6 rounded-3xl shadow-xl border border-white/10 hover:scale-[1.02] transition-all"
+                        className="bg-brand-bg cursor-pointer text-left p-6 rounded-3xl shadow-xl border border-white/10 hover:scale-[1.02] transition-all"
                     >
                         <div className="text-4xl mb-4">{type.icon}</div>
 

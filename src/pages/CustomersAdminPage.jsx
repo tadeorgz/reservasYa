@@ -81,7 +81,7 @@ function CustomersAdminPage() {
             <div className="lg:max-w-4/5 md:max-w-10/12 mx-auto">
                 <button
                     onClick={() => navigate('/dashboard')}
-                    className="text-white/80 hover:text-white flex items-center gap-2 mb-6"
+                    className="text-white/80 hover:text-white flex cursor-pointer items-center gap-2 mb-6"
                 >
                     <ArrowLeft size={18} />
                     Volver al dashboard

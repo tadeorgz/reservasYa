@@ -18,6 +18,16 @@ export async function getAppointmentsByBusinessId(businessId) {
 }
 
 export async function createAppointment({ businessId, appointment }) {
+    const overlaps = await hasOverlappingAppointment({
+        businessId,
+        professionalId: appointment.professionalId,
+        start: appointment.start,
+        end: appointment.end,
+    });
+
+    if (overlaps) {
+        throw new Error('Ese horario ya está ocupado para este profesional.');
+    }
     const { data, error } = await supabase
         .from('appointments')
         .insert({
@@ -66,7 +76,22 @@ export async function updateAppointmentStatus(appointmentId, status) {
     return mapAppointmentFromDb(data);
 }
 
-function mapAppointmentFromDb(row) {
+async function hasOverlappingAppointment({ businessId, professionalId, start, end }) {
+    const { data, error } = await supabase
+        .from('appointments')
+        .select('id')
+        .eq('business_id', businessId)
+        .eq('professional_id', professionalId)
+        .neq('status', 'cancelled')
+        .lt('start_time', end)
+        .gt('end_time', start);
+
+    if (error) throw error;
+
+    return data.length > 0;
+}
+
+export function mapAppointmentFromDb(row) {
     const start = row.start_time;
     const end = row.end_time;
 

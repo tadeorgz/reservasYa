@@ -107,7 +107,7 @@ function ServicesPage() {
             <div className="w-full max-w-3xl text-center mb-6 md:mb-8">
                 <button
                     onClick={() => navigate(-1)}
-                    className="text-white py-2 px-4 rounded-lg mb-4 hover:bg-white/10 transition-all flex items-center gap-2"
+                    className="text-white cursor-pointer py-2 px-4 rounded-lg mb-4 hover:bg-white/10 transition-all flex items-center gap-2"
                 >
                     <CircleArrowLeft size={20} />
                     <span>Volver</span>
@@ -211,7 +211,7 @@ function ServicesPage() {
                 <button
                     type="button"
                     onClick={handleAddService}
-                    className="w-full border border-dashed border-brand-text/30 text-brand-text font-semibold py-3 rounded-xl mt-5 hover:bg-brand-surface transition-all flex items-center justify-center gap-2"
+                    className="w-full border border-dashed cursor-pointer border-brand-text/30 text-brand-text font-semibold py-3 rounded-xl mt-5 hover:bg-brand-surface transition-all flex items-center justify-center gap-2"
                 >
                     <Plus size={18} />
                     <span>Agregar otro servicio</span>
@@ -220,7 +220,7 @@ function ServicesPage() {
                 {/* BOTÓN SUBMIT */}
                 <button
                     type="submit"
-                    className="w-full bg-brand-accent hover:bg-brand-accent-light text-brand-text font-bold py-3.5 px-4 rounded-xl transition-all duration-200 mt-6 shadow-md hover:shadow-lg active:scale-[0.99]"
+                    className="w-full bg-brand-accent cursor-pointer hover:bg-brand-accent-light text-brand-text font-bold py-3.5 px-4 rounded-xl transition-all duration-200 mt-6 shadow-md hover:shadow-lg active:scale-[0.99]"
                 >
                     Crear mi agenda
                 </button>

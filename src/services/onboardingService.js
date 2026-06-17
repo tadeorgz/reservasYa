@@ -33,6 +33,9 @@ export async function createBusinessOnboarding({
             whatsapp,
             business_type: businessType.id,
             monthly_appointments_estimate: monthlyAppointments,
+            plan: 'free',
+            subscription_status: 'trial',
+            trial_ends_at: getTrialEndDate(),
         })
         .select()
         .single();
@@ -126,4 +129,14 @@ function generateSlug(text) {
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9-]/g, '');
+}
+
+// function getTrialEndDate() {
+//     const date = new Date();
+//     date.setDate(date.getDate() + 21);
+//     return date.toISOString();
+// }
+
+function getTrialEndDate() {
+    return '2026-09-01T23:59:59';
 }

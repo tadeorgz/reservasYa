@@ -5,10 +5,10 @@ const plans = [
     {
         name: "Gratis",
         price: "$0",
-        description: "Para empezar con una agenda online simple.",
+        description: "Para negocios pequeños que quieren empezar a ordenar sus reservas.",
         highlight: false,
         features: [
-            "21 días gratis",
+            "Gratis durante el lanzamiento",
             "1 profesional",
             "Hasta 30 reservas al mes",
             "Página pública de reservas",
@@ -18,10 +18,10 @@ const plans = [
     {
         name: "Estándar",
         price: "$490",
-        description: "Para negocios que ya reciben varios turnos por semana.",
+        description: "Para barberías, peluquerías y salones que ya reciben varios turnos.",
         highlight: true,
         features: [
-            "21 días gratis",
+            "Gratis durante el lanzamiento",
             "Hasta 3 profesionales",
             "Hasta 300 reservas al mes",
             "Servicios ilimitados",
@@ -31,10 +31,10 @@ const plans = [
     {
         name: "Profesional",
         price: "$890",
-        description: "Para equipos que necesitan más control y métricas.",
+        description: "Para equipos que necesitan más control, métricas y personalización.",
         highlight: false,
         features: [
-            "21 días gratis",
+            "Gratis durante el lanzamiento",
             "Profesionales ilimitados",
             "Reservas ilimitadas",
             "Métricas avanzadas",
@@ -55,11 +55,19 @@ export default function PricingSection() {
                     </span>
 
                     <h2 className="mt-6 text-3xl font-black tracking-tight md:text-5xl">
-                        Empezá gratis y elegí el plan cuando tu negocio crezca.
+                        Usalo gratis durante el lanzamiento.
                     </h2>
 
                     <p className="mt-5 text-lg font-medium text-[#1E2925]/70">
-                        Todos los planes incluyen 21 días gratis. Sin compromiso ni tarjeta inicial.
+                        Todos los negocios registrados ahora tendrán acceso gratuito hasta el 1 de septiembre de 2026.
+                        Sin tarjeta. Sin compromiso.
+                    </p>
+                </div>
+
+                <div className="mx-auto mt-10 max-w-4xl rounded-3xl border border-[#199462]/20 bg-[#199462]/10 px-6 py-5 text-center">
+                    <p className="text-sm font-bold text-[#199462]">
+                        Los precios se aplicarán recién después del lanzamiento oficial. Antes de activar suscripciones,
+                        te avisaremos con claridad para que puedas elegir el plan que mejor encaje con tu negocio.
                     </p>
                 </div>
 
@@ -68,8 +76,8 @@ export default function PricingSection() {
                         <article
                             key={plan.name}
                             className={`relative rounded-3xl border p-8 shadow-sm ${plan.highlight
-                                ? "border-[#199462] bg-[#0D231B] text-white shadow-2xl "
-                                : "border-black/5 bg-white text-[#1E2925] shadow-lg "
+                                ? "border-[#199462] bg-[#0D231B] text-white shadow-2xl"
+                                : "border-black/5 bg-white text-[#1E2925] shadow-lg"
                                 }`}
                         >
                             {plan.highlight && (
@@ -97,14 +105,21 @@ export default function PricingSection() {
                                 </span>
                             </div>
 
+                            <p
+                                className={`mt-3 text-xs font-bold ${plan.highlight ? "text-emerald-200" : "text-[#199462]"
+                                    }`}
+                            >
+                                Gratis hasta el 1 de septiembre de 2026
+                            </p>
+
                             <button
                                 onClick={() => navigate("/register")}
-                                className={`mt-8 inline-flex w-full items-center justify-center cursor-pointer gap-2 rounded-full px-6 py-3.5 text-sm font-black transition ${plan.highlight
+                                className={`mt-8 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-black transition ${plan.highlight
                                     ? "bg-[#199462] text-white hover:bg-[#2D7A5F]"
                                     : "bg-[#1E2925] text-white hover:bg-[#0D231B]"
                                     }`}
                             >
-                                Prueba gratis
+                                Crear mi agenda gratis
                                 <ArrowRight size={18} />
                             </button>
 

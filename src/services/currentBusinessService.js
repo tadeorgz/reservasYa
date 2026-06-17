@@ -16,11 +16,14 @@ export async function getCurrentProfile() {
         .select(`
         *,
         businesses (
-            id,
-            name,
-            slug,
-            business_type
-        )
+        id,
+        name,
+        slug,
+        business_type,
+        plan,
+        subscription_status,
+        trial_ends_at
+    )
     `)
         .eq('id', user.id)
         .single();

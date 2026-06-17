@@ -26,8 +26,9 @@ import {
     createAppointment,
     getAppointmentsByBusinessId,
     updateAppointmentStatus,
+    mapAppointmentFromDb,
 } from '../services/appointmentService';
-
+import { supabase } from "../services/supabaseClient";
 import { getDashboardStats } from '../utils/dashboardStats';
 
 function DashboardPage() {
@@ -46,7 +47,7 @@ function DashboardPage() {
     const [business, setBusiness] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
-
+    const [toasts, setToasts] = useState([]); //notificaciones
     useEffect(() => {
         async function loadDashboardData() {
             try {
@@ -79,6 +80,48 @@ function DashboardPage() {
         loadDashboardData();
     }, []);
 
+    useEffect(() => {
+        if (!business?.id) return;
+
+        const channel = supabase
+            .channel(`appointments-${business.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'appointments',
+                    filter: `business_id=eq.${business.id}`,
+                },
+                async (payload) => {
+                    const appointment = mapAppointmentFromDb(payload.new);
+
+                    setAppointments((currentAppointments) => {
+                        const alreadyExists = currentAppointments.some(
+                            (currentAppointment) => currentAppointment.id === appointment.id
+                        );
+
+                        if (alreadyExists) return currentAppointments;
+
+                        return [...currentAppointments, appointment];
+                    });
+
+                    setToasts((currentToasts) => [
+                        ...currentToasts,
+                        {
+                            id: appointment.id,
+                            title: 'Nuevo turno recibido',
+                            message: `${appointment.customerName} reservó ${appointment.serviceName} a las ${appointment.time}`,
+                        },
+                    ]);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [business?.id]);
 
     const businessName = business?.name || 'Mi negocio';
     const publicUrl = business?.slug ? `/reservas/${business.slug}` : '/reservas';
@@ -202,7 +245,7 @@ function DashboardPage() {
                     {/* Logo/Nombre: Solo visible en PC */}
                     <div className="hidden lg:block">
                         <h1 className="text-xl font-bold text-brand-text font-['Pliant'] tracking-wide">
-                            ReservaYa
+                            ReservasYa
                         </h1>
                         <p className="text-xs text-brand-text/50">Gestión de reservas</p>
                     </div>
@@ -329,6 +372,42 @@ function DashboardPage() {
                     </section>
                 </main>
             </div>
+            {toasts.length > 0 && (
+                <div className="fixed top-4 right-4 z-[1000] space-y-3 w-[calc(100%-2rem)] max-w-sm">
+                    {toasts.map((toast) => (
+                        <div
+                            key={toast.id}
+                            className="bg-brand-bg border border-brand-green/20 shadow-2xl rounded-2xl p-4"
+                        >
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="font-bold text-brand-text">
+                                        {toast.title}
+                                    </p>
+
+                                    <p className="text-sm text-brand-text/60 mt-1">
+                                        {toast.message}
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setToasts((currentToasts) =>
+                                            currentToasts.filter(
+                                                (currentToast) => currentToast.id !== toast.id
+                                            )
+                                        )
+                                    }
+                                    className="text-brand-text/40 hover:text-brand-text font-bold"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
             {modalState.isOpen && (
                 <AppointmentModal
                     mode={modalState.mode}

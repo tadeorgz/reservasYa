@@ -9,7 +9,7 @@ export async function getPublicBookingDataBySlug(slug) {
 
     if (businessError) throw businessError;
 
-    const [settingsResult, hoursResult, servicesResult, professionalsResult] =
+    const [settingsResult, hoursResult, servicesResult, professionalsResult, appointmentsResult] =
         await Promise.all([
             supabase
                 .from('business_settings')
@@ -36,12 +36,18 @@ export async function getPublicBookingDataBySlug(slug) {
                 .eq('business_id', business.id)
                 .eq('active', true)
                 .order('created_at', { ascending: true }),
+            supabase
+                .from('appointments')
+                .select('*')
+                .eq('business_id', business.id)
+                .neq('status', 'cancelled'),
         ]);
 
     if (settingsResult.error) throw settingsResult.error;
     if (hoursResult.error) throw hoursResult.error;
     if (servicesResult.error) throw servicesResult.error;
     if (professionalsResult.error) throw professionalsResult.error;
+    if (appointmentsResult.error) throw appointmentsResult.error;
 
     return {
         business,
@@ -77,13 +83,47 @@ export async function getPublicBookingDataBySlug(slug) {
                 allowBookingNotes: settingsResult.data.booking?.allowBookingNotes ?? true,
                 professionalSelection: settingsResult.data.booking?.professionalSelection || 'can',
             },
+            appointments: appointmentsResult.data.map((appointment) => ({
+                id: appointment.id,
+                businessId: appointment.business_id,
+                professionalId: appointment.professional_id,
+                date: appointment.date,
+                start: appointment.start_time,
+                end: appointment.end_time,
+                status: appointment.status,
+            })),
         },
         services: servicesResult.data,
         professionals: professionalsResult.data,
     };
 }
 
+async function hasOverlappingAppointment({ businessId, professionalId, start, end }) {
+    const { data, error } = await supabase
+        .from('appointments')
+        .select('id')
+        .eq('business_id', businessId)
+        .eq('professional_id', professionalId)
+        .neq('status', 'cancelled')
+        .lt('start_time', end)
+        .gt('end_time', start);
+
+    if (error) throw error;
+
+    return data.length > 0;
+}
+
 export async function createPublicAppointment({ businessId, appointment }) {
+    const overlaps = await hasOverlappingAppointment({
+        businessId,
+        professionalId: appointment.professionalId,
+        start: appointment.start,
+        end: appointment.end,
+    });
+
+    if (overlaps) {
+        throw new Error('Ese horario ya no está disponible para este profesional.');
+    }
     const { data, error } = await supabase
         .from('appointments')
         .insert({

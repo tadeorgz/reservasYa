@@ -59,7 +59,7 @@ function AppointmentModal({
             <div className="bg-brand-bg rounded-3xl shadow-2xl w-full max-w-lg p-6 relative">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-brand-text/60 hover:text-brand-text"
+                    className="absolute top-4 right-4 cursor-pointer text-brand-text/60 hover:text-brand-text"
                 >
                     <X size={22} />
                 </button>
@@ -87,7 +87,7 @@ function AppointmentModal({
                             <Info label="Precio" value={`$${appointment.price}`} />
                         </div>
 
-                        <div className="border-t border-gray-200 pt-5">
+                        <div className="border-t border-gray-200 pt-5 gap-3 flex flex-col">
                             <p className="text-sm font-bold text-brand-text mb-3">
                                 Cambiar estado
                             </p>
@@ -97,7 +97,7 @@ function AppointmentModal({
                                     type="button"
                                     onClick={() => onUpdateAppointmentStatus(appointment.id, 'confirmed')}
                                     disabled={appointment.status === 'confirmed'}
-                                    className="bg-blue-50 text-blue-700 border border-blue-200 disabled:opacity-40 font-bold py-3 rounded-xl hover:bg-blue-100 transition-all"
+                                    className="bg-blue-50 text-blue-700 border border-blue-200 cursor-pointer disabled:opacity-40 font-bold py-3 rounded-xl hover:bg-blue-100 transition-all"
                                 >
                                     Confirmar
                                 </button>
@@ -106,7 +106,7 @@ function AppointmentModal({
                                     type="button"
                                     onClick={() => onUpdateAppointmentStatus(appointment.id, 'completed')}
                                     disabled={appointment.status === 'completed'}
-                                    className="bg-emerald-50 text-emerald-700 border border-emerald-200 disabled:opacity-40 font-bold py-3 rounded-xl hover:bg-emerald-100 transition-all"
+                                    className="bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-pointer disabled:opacity-40 font-bold py-3 rounded-xl hover:bg-emerald-100 transition-all"
                                 >
                                     Completar
                                 </button>
@@ -115,11 +115,18 @@ function AppointmentModal({
                                     type="button"
                                     onClick={() => onUpdateAppointmentStatus(appointment.id, 'cancelled')}
                                     disabled={appointment.status === 'cancelled'}
-                                    className="bg-red-50 text-red-700 border border-red-200 disabled:opacity-40 font-bold py-3 rounded-xl hover:bg-red-100 transition-all"
+                                    className="bg-red-50 text-red-700 border border-red-200 cursor-pointer disabled:opacity-40 font-bold py-3 rounded-xl hover:bg-red-100 transition-all"
                                 >
                                     Cancelar
                                 </button>
                             </div>
+                            <button
+                                type="button"
+                                onClick={() => openCustomerWhatsapp(appointment)}
+                                className="w-full bg-brand-green text-white cursor-pointer font-bold py-3 rounded-xl hover:opacity-90 transition-all"
+                            >
+                                Contactar por WhatsApp
+                            </button>
                         </div>
                     </div>
                 ) : (
@@ -223,5 +230,24 @@ function addMinutesToDateTime(dateTime, minutes) {
     const mins = String(date.getMinutes()).padStart(2, '0');
 
     return `${year}-${month}-${day}T${hours}:${mins}:00`;
+}
+
+function openCustomerWhatsapp(appointment) {
+    const phone = normalizeUruguayPhone(appointment.customerPhone);
+
+    const message = `Hola ${appointment.customerName}, te confirmamos tu reserva para ${appointment.serviceName} el ${formatDateTime(appointment.start)}.`;
+
+    window.open(
+        `https://wa.me/${phone}?text=${encodeURIComponent(message)}`,
+        '_blank'
+    );
+}
+
+function normalizeUruguayPhone(phone) {
+    const cleaned = String(phone || '').replace(/\D/g, '');
+
+    if (cleaned.startsWith('598')) return cleaned;
+
+    return `598${cleaned}`;
 }
 export default AppointmentModal;

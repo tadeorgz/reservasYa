@@ -37,7 +37,7 @@ export default function ProblemSection() {
                     </h2>
 
                     <p className="mt-5 text-lg font-medium text-[#1E2925]/70">
-                        ReservaYa ayuda a negocios chicos y medianos a ordenar su agenda,
+                        ReservasYa ayuda a negocios chicos y medianos a ordenar su agenda,
                         recibir reservas online y trabajar con más control desde el primer día.
                     </p>
                 </div>

@@ -29,6 +29,7 @@ function PublicBookingPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [existingAppointments, setExistingAppointments] = useState([]);
 
     useEffect(() => {
         async function loadPublicBookingData() {
@@ -43,6 +44,7 @@ function PublicBookingPage() {
                 setSettings(data.settings);
                 setServices(data.services);
                 setProfessionals(data.professionals);
+                setExistingAppointments(data.appointments || []);
             } catch (error) {
                 console.error(error);
                 setIsValidSlug(false);
@@ -54,10 +56,24 @@ function PublicBookingPage() {
         loadPublicBookingData();
     }, [slug]);
 
+    function hasAppointmentOverlap({ appointments = [], professionalId, start, end }) {
+        return appointments.some((appointment) => {
+            if (appointment.professionalId !== professionalId) return false;
+            if (appointment.status === 'cancelled') return false;
+
+            return start < appointment.end && end > appointment.start;
+        });
+    }
+
     const availableDates = useMemo(() => {
         const today = new Date();
 
-        return Array.from({ length: 7 }, (_, index) => {
+        const maxDaysToShow = Math.min(
+            Number(settings.booking.maxDaysInAdvance || 7),
+            30
+        );
+
+        return Array.from({ length: maxDaysToShow }, (_, index) => {
             const date = new Date(today);
             date.setDate(today.getDate() + index);
 
@@ -81,7 +97,7 @@ function PublicBookingPage() {
     }, [settings.businessHours]);
 
     const availableTimes = useMemo(() => {
-        if (!selectedDate || !selectedService) return [];
+        if (!selectedDate || !selectedService || !selectedProfessional) return [];
 
         const date = new Date(`${selectedDate}T00:00:00`);
         const dayOfWeek = date.getDay();
@@ -92,17 +108,48 @@ function PublicBookingPage() {
 
         if (!businessDay?.isOpen) return [];
 
-        return generateTimeSlots(
+        const serviceDuration = selectedService.duration || 30;
+
+        const allSlots = generateTimeSlots(
             businessDay.openTime,
             businessDay.closeTime,
-            selectedService.duration || 30
+            serviceDuration
         );
-    }, [selectedDate, selectedService, settings.businessHours]);
+
+        return allSlots.filter((time) => {
+            const start = `${selectedDate}T${time}:00`;
+            const end = addMinutesToDateTime(start, serviceDuration);
+
+            if (!isAfterMinimumBookingTime(start, settings.booking.minHoursBeforeBooking)) {
+                return false;
+            }
+
+            return !hasAppointmentOverlap({
+                appointments: existingAppointments,
+                professionalId: selectedProfessional.id,
+                start,
+                end,
+            });
+        });
+    }, [
+        selectedDate,
+        selectedService,
+        selectedProfessional,
+        settings.businessHours,
+        existingAppointments,
+    ]);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!business || !selectedService || !selectedProfessional || !selectedDate || !selectedTime) {
+        if (
+            !business ||
+            !selectedService ||
+            !selectedProfessional ||
+            !selectedDate ||
+            !selectedTime
+        ) {
             return;
         }
 
@@ -111,9 +158,12 @@ function PublicBookingPage() {
             setErrorMessage('');
 
             const start = `${selectedDate}T${selectedTime}:00`;
-            const end = addMinutesToDateTime(start, selectedService.duration || 30);
+            const end = addMinutesToDateTime(
+                start,
+                selectedService.duration || 30
+            );
 
-            await createPublicAppointment({
+            const createdAppointment = await createPublicAppointment({
                 businessId: business.id,
                 appointment: {
                     customerName,
@@ -131,6 +181,19 @@ function PublicBookingPage() {
                     price: Number(selectedService.price || 0),
                 },
             });
+
+            setExistingAppointments((current) => [
+                ...current,
+                {
+                    id: createdAppointment.id,
+                    businessId: createdAppointment.business_id,
+                    professionalId: createdAppointment.professional_id,
+                    date: createdAppointment.date,
+                    start: createdAppointment.start_time,
+                    end: createdAppointment.end_time,
+                    status: createdAppointment.status,
+                },
+            ]);
 
             setBookingCreated(true);
         } catch (error) {
@@ -159,6 +222,9 @@ function PublicBookingPage() {
     const theme = settings.theme;
     const company = settings.company;
     const contact = settings.contact;
+    const bookingRules = settings.booking || {};
+    const professionalSelection = bookingRules.professionalSelection || 'can';
+    const shouldShowProfessionalStep = professionalSelection !== 'cannot';
 
     if (isLoading) {
         return (
@@ -255,8 +321,14 @@ function PublicBookingPage() {
                                                 key={service.id}
                                                 onClick={() => {
                                                     setSelectedService(service);
-                                                    // Limpiamos los dependientes por si cambia de servicio
+                                                    setSelectedDate('');
                                                     setSelectedTime('');
+
+                                                    if (professionalSelection === 'cannot') {
+                                                        setSelectedProfessional(getAutoSelectedProfessional(professionals));
+                                                    } else {
+                                                        setSelectedProfessional(null);
+                                                    }
                                                 }}
                                                 className={`text-left border rounded-2xl p-5 transition-all ${selectedService?.id === service.id
                                                     ? 'bg-brand-green text-white border-brand-green'
@@ -272,34 +344,33 @@ function PublicBookingPage() {
                                 </BookingStep>
 
                                 {/* PASO 2: PROFESIONAL (Requiere Servicio) */}
-                                {selectedService && (
-                                    <BookingStep
-                                        number="2"
-                                        title="Elegí profesional"
-                                        isCompleted={!!selectedProfessional}
-                                        onEdit={() => {
-                                            setSelectedProfessional(null);
-                                            setSelectedDate('');
-                                            setSelectedTime('');
-                                        }}
-                                    >
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {professionals.map((professional) => (
-                                                <button
-                                                    type="button"
-                                                    key={professional.id}
-                                                    onClick={() => setSelectedProfessional(professional)}
-                                                    className={`text-left border rounded-2xl p-5 transition-all ${selectedProfessional?.id === professional.id
-                                                        ? 'bg-brand-green text-white border-brand-green'
-                                                        : 'bg-brand-surface border-gray-200 text-brand-text hover:scale-[1.01]'
-                                                        }`}
-                                                >
-                                                    <h3 className="font-bold">{professional.name}</h3>
-                                                    <p className="text-sm opacity-70">{professional.role}</p>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </BookingStep>
+                                {selectedService && shouldShowProfessionalStep && (<BookingStep
+                                    number="2"
+                                    title="Elegí profesional"
+                                    isCompleted={!!selectedProfessional}
+                                    onEdit={() => {
+                                        setSelectedProfessional(null);
+                                        setSelectedDate('');
+                                        setSelectedTime('');
+                                    }}
+                                >
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {professionals.map((professional) => (
+                                            <button
+                                                type="button"
+                                                key={professional.id}
+                                                onClick={() => setSelectedProfessional(professional)}
+                                                className={`text-left border rounded-2xl p-5 transition-all ${selectedProfessional?.id === professional.id
+                                                    ? 'bg-brand-green text-white border-brand-green'
+                                                    : 'bg-brand-surface border-gray-200 text-brand-text hover:scale-[1.01]'
+                                                    }`}
+                                            >
+                                                <h3 className="font-bold">{professional.name}</h3>
+                                                <p className="text-sm opacity-70">{professional.role}</p>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </BookingStep>
                                 )}
 
                                 {/* PASO 3: FECHA (Requiere Profesional) */}
@@ -539,9 +610,26 @@ function addMinutesToDateTime(dateTime, minutes) {
 }
 
 function toDateInputValue(date) {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
 }
 
+function getAutoSelectedProfessional(professionals) {
+    return professionals[0] || null;
+}
 
+function isAfterMinimumBookingTime(start, minHoursBeforeBooking) {
+    const startDate = new Date(start);
+    const minimumDate = new Date();
+
+    minimumDate.setHours(
+        minimumDate.getHours() + Number(minHoursBeforeBooking || 0)
+    );
+
+    return startDate >= minimumDate;
+}
 
 export default PublicBookingPage;

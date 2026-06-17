@@ -112,5 +112,10 @@ function mapSettingsFromDb({ business, settings, hours }) {
             allowBookingNotes: settings.booking?.allowBookingNotes ?? true,
             professionalSelection: settings.booking?.professionalSelection || 'can',
         },
+        subscription: {
+            plan: business.plan || 'free',
+            status: business.subscription_status || 'inactive',
+            trialEndsAt: business.trial_ends_at || null,
+        },
     };
 }
