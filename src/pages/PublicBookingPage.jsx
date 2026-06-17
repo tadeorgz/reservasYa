@@ -163,7 +163,7 @@ function PublicBookingPage() {
                 selectedService.duration || 30
             );
 
-            const createdAppointment = await createPublicAppointment({
+            await createPublicAppointment({
                 businessId: business.id,
                 appointment: {
                     customerName,
@@ -185,13 +185,13 @@ function PublicBookingPage() {
             setExistingAppointments((current) => [
                 ...current,
                 {
-                    id: createdAppointment.id,
-                    businessId: createdAppointment.business_id,
-                    professionalId: createdAppointment.professional_id,
-                    date: createdAppointment.date,
-                    start: createdAppointment.start_time,
-                    end: createdAppointment.end_time,
-                    status: createdAppointment.status,
+                    id: crypto.randomUUID(),
+                    businessId: business.id,
+                    professionalId: selectedProfessional.id,
+                    date: selectedDate,
+                    start,
+                    end,
+                    status: 'confirmed',
                 },
             ]);
 

@@ -98,12 +98,13 @@ export async function getPublicBookingDataBySlug(slug) {
     };
 }
 
-async function hasOverlappingAppointment({ businessId, professionalId, start, end }) {
+async function hasOverlappingAppointment({ businessId, professionalId, date, start, end }) {
     const { data, error } = await supabase
         .from('appointments')
         .select('id')
         .eq('business_id', businessId)
         .eq('professional_id', professionalId)
+        .eq('date', date)
         .neq('status', 'cancelled')
         .lt('start_time', end)
         .gt('end_time', start);
@@ -117,6 +118,7 @@ export async function createPublicAppointment({ businessId, appointment }) {
     const overlaps = await hasOverlappingAppointment({
         businessId,
         professionalId: appointment.professionalId,
+        date: appointment.date,
         start: appointment.start,
         end: appointment.end,
     });

@@ -21,6 +21,7 @@ export async function createAppointment({ businessId, appointment }) {
     const overlaps = await hasOverlappingAppointment({
         businessId,
         professionalId: appointment.professionalId,
+        date: appointment.date,
         start: appointment.start,
         end: appointment.end,
     });
