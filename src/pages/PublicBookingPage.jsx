@@ -177,8 +177,7 @@ function PublicBookingPage() {
                     time: selectedTime,
                     start,
                     end,
-                    status: 'confirmed',
-                    price: Number(selectedService.price || 0),
+                    status: settings.booking.autoConfirmAppointments ? 'confirmed' : 'pending', price: Number(selectedService.price || 0),
                 },
             });
 

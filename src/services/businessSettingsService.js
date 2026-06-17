@@ -111,6 +111,7 @@ function mapSettingsFromDb({ business, settings, hours }) {
             maxDaysInAdvance: settings.booking?.maxDaysInAdvance ?? 30,
             allowBookingNotes: settings.booking?.allowBookingNotes ?? true,
             professionalSelection: settings.booking?.professionalSelection || 'can',
+            autoConfirmAppointments: settings.booking?.autoConfirmAppointments ?? true,
         },
         subscription: {
             plan: business.plan || 'free',

@@ -82,6 +82,7 @@ export async function getPublicBookingDataBySlug(slug) {
                 maxDaysInAdvance: settingsResult.data.booking?.maxDaysInAdvance ?? 30,
                 allowBookingNotes: settingsResult.data.booking?.allowBookingNotes ?? true,
                 professionalSelection: settingsResult.data.booking?.professionalSelection || 'can',
+                autoConfirmAppointments: settingsResult.data.booking?.autoConfirmAppointments ?? true,
             },
             appointments: appointmentsResult.data.map((appointment) => ({
                 id: appointment.id,

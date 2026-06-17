@@ -18,6 +18,7 @@ function BusinessSettingsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         async function loadSettings() {
@@ -64,7 +65,8 @@ function BusinessSettingsPage() {
 
             await updateBusinessSettingsData(businessId, settings);
 
-            alert('Configuración guardada');
+            setSuccessMessage('Configuración guardada con éxito.');
+            setErrorMessage('');
         } catch (error) {
             console.error(error);
             setErrorMessage(error.message || 'No se pudo guardar la configuración.');
@@ -333,6 +335,7 @@ function BusinessSettingsPage() {
                             }
                         />
 
+
                         <Select
                             label="Notas de reserva"
                             value={settings.booking.allowBookingNotes ? 'yes' : 'no'}
@@ -357,12 +360,32 @@ function BusinessSettingsPage() {
                                 { value: 'cannot', label: 'El cliente no puede elegir profesional' },
                             ]}
                         />
+                        <Select
+                            label="Confirmación automática"
+                            value={settings.booking.autoConfirmAppointments ? 'yes' : 'no'}
+                            onChange={(value) =>
+                                handleChange('booking', 'autoConfirmAppointments', value === 'yes')
+                            }
+                            options={[
+                                { value: 'yes', label: 'Confirmar reservas automáticamente' },
+                                { value: 'no', label: 'Dejar reservas pendientes para confirmar manualmente' },
+                            ]}
+                        />
+
+                        <p className="md:col-span-2 text-sm text-brand-text/60 -mt-2">
+                            Si desactivás esta opción, las reservas realizadas desde la página pública quedarán pendientes y deberás confirmarlas desde el dashboard.
+                        </p>
                     </SettingsCard>
 
+                    {successMessage && (
+                        <div className="mt-4 p-4 bg-green-100 text-green-800 rounded-xl">
+                            {successMessage}
+                        </div>
+                    )}
                     <button
                         type="submit"
                         disabled={isSaving}
-                        className="w-full bg-brand-accent hover:bg-brand-accent-light disabled:opacity-60 text-brand-text font-bold py-4 rounded-2xl flex items-center justify-center gap-2"
+                        className="w-full bg-brand-accent hover:bg-brand-accent-light cursor-pointer disabled:opacity-60 text-brand-text font-bold py-4 rounded-2xl flex items-center justify-center gap-2"
                     >
                         <Save size={18} />
                         {isSaving ? 'Guardando...' : 'Guardar configuración'}
