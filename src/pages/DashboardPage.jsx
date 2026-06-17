@@ -245,7 +245,7 @@ function DashboardPage() {
                     {/* Logo/Nombre: Solo visible en PC */}
                     <div className="hidden lg:block">
                         <h1 className="text-xl font-bold text-brand-text font-['Pliant'] tracking-wide">
-                            ReservasYa
+                            AgendasYa
                         </h1>
                         <p className="text-xs text-brand-text/50">Gestión de reservas</p>
                     </div>

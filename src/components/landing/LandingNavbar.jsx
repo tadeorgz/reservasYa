@@ -30,9 +30,9 @@ export default function LandingNavbar() {
                     className="flex items-center gap-2 text-xl font-black cursor-pointer"
                 >
                     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#199462] to-[#D4AF37]">
-                        <img className="h-full w-full object-contain rounded-xl" src="LOGO-RY.webp" alt="ReservasYa Logo " />
+                        <img className="h-full w-full object-contain rounded-xl" src="LOGO-RY.webp" alt="AgendasYa Logo " />
                     </span>
-                    ReservasYa
+                    AgendasYa
                 </button>
 
                 <div className="hidden items-center gap-8 text-sm font-semibold text-white/75 md:flex">

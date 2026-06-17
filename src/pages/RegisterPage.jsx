@@ -57,7 +57,7 @@ function RegisterPage() {
             {/* Encabezado del Formulario */}
             <div className="w-full max-w-md text-center">
                 <h1 className="text-3xl font-bold mb-2 text-white font-['Pliant'] tracking-wide">
-                    ReservasYa
+                    AgendasYa
                 </h1>
                 <p className="text-white/80 text-sm max-w-xs mx-auto">
                     Registra tu negocio y comienza a gestionar tus reservas.

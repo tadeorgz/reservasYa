@@ -20,7 +20,7 @@ export default function BusinessTypesSection() {
                     </h2>
 
                     <p className="mt-5 text-lg font-medium text-[#1E2925]/70">
-                        ReservasYa se adapta a barberías, peluquerías, salones y servicios que necesitan ordenar turnos.
+                        AgendasYa se adapta a barberías, peluquerías, salones y servicios que necesitan ordenar turnos.
                     </p>
                 </div>
 
