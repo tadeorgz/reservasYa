@@ -124,7 +124,8 @@ export async function createPublicAppointment({ businessId, appointment }) {
     if (overlaps) {
         throw new Error('Ese horario ya no está disponible para este profesional.');
     }
-    const { data, error } = await supabase
+
+    const { error } = await supabase
         .from('appointments')
         .insert({
             business_id: businessId,
@@ -141,11 +142,9 @@ export async function createPublicAppointment({ businessId, appointment }) {
             status: appointment.status || 'confirmed',
             price: Number(appointment.price || 0),
             source: 'public_booking',
-        })
-        .select()
-        .single();
+        });
 
     if (error) throw error;
 
-    return data;
+    return true;
 }
