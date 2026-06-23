@@ -157,10 +157,12 @@ function BusinessSettingsPage() {
                             onChange={(value) => handleChange('company', 'description', value)}
                         />
 
+                        {/* Input del Logo modificado para que no actúe y se vea deshabilitado */}
                         <Input
-                            label="Logo"
+                            label="Logo (Próximamente)"
                             type="file"
                             onChange={() => { }}
+                            disabled={true}
                         />
 
                         <Input
@@ -177,7 +179,7 @@ function BusinessSettingsPage() {
                                 <div
                                     key={day.dayOfWeek}
                                     className="grid grid-cols-1 md:grid-cols-[1fr_120px_120px_120px] gap-3 items-center bg-brand-surface border border-gray-200 rounded-2xl p-4"
-                                >
+                                    redundancy>
                                     <div>
                                         <p className="font-bold text-brand-text">
                                             {day.dayLabel}
@@ -335,7 +337,6 @@ function BusinessSettingsPage() {
                             }
                         />
 
-
                         <Select
                             label="Notas de reserva"
                             value={settings.booking.allowBookingNotes ? 'yes' : 'no'}
@@ -410,9 +411,10 @@ function SettingsCard({ title, children }) {
     );
 }
 
-function Input({ label, value, onChange, type = 'text', placeholder = '' }) {
+// Se añadieron clases condicionales para el atributo disabled (opacity-50 y cursor-not-allowed)
+function Input({ label, value, onChange, type = 'text', placeholder = '', disabled = false }) {
     return (
-        <label className="block">
+        <label className={`block ${disabled ? 'opacity-50' : ''}`}>
             <span className="text-sm font-semibold text-brand-text/70">
                 {label}
             </span>
@@ -421,8 +423,9 @@ function Input({ label, value, onChange, type = 'text', placeholder = '' }) {
                 type={type}
                 value={type === 'file' ? undefined : value}
                 placeholder={placeholder}
+                disabled={disabled}
                 onChange={(e) => onChange?.(e.target.value)}
-                className="mt-2 w-full bg-brand-surface text-brand-text border border-gray-200 p-3 rounded-xl focus:outline-none focus:border-brand-green"
+                className={`mt-2 w-full bg-brand-surface text-brand-text border border-gray-200 p-3 rounded-xl focus:outline-none focus:border-brand-green ${disabled ? 'cursor-not-allowed' : ''}`}
             />
         </label>
     );
@@ -529,6 +532,7 @@ function formatDate(date) {
 }
 
 function generateSlug(text) {
+    if (!text) return '';
     return text
         .toLowerCase()
         .trim()

@@ -31,6 +31,8 @@ function PublicBookingPage() {
     const [errorMessage, setErrorMessage] = useState('');
     const [existingAppointments, setExistingAppointments] = useState([]);
 
+    const [createdAppointment, setCreatedAppointment] = useState(null);
+
     useEffect(() => {
         async function loadPublicBookingData() {
             try {
@@ -163,22 +165,30 @@ function PublicBookingPage() {
                 selectedService.duration || 30
             );
 
+            const newAppointment = {
+                customerName,
+                customerPhone,
+                notes,
+                serviceId: selectedService.id,
+                serviceName: selectedService.name,
+                professionalId: selectedProfessional.id,
+                professionalName: selectedProfessional.name,
+                date: selectedDate,
+                time: selectedTime,
+                start,
+                end,
+                status: settings.booking.autoConfirmAppointments ? 'confirmed' : 'pending',
+                price: Number(selectedService.price || 0),
+            };
+
             await createPublicAppointment({
                 businessId: business.id,
-                appointment: {
-                    customerName,
-                    customerPhone,
-                    notes,
-                    serviceId: selectedService.id,
-                    serviceName: selectedService.name,
-                    professionalId: selectedProfessional.id,
-                    professionalName: selectedProfessional.name,
-                    date: selectedDate,
-                    time: selectedTime,
-                    start,
-                    end,
-                    status: settings.booking.autoConfirmAppointments ? 'confirmed' : 'pending', price: Number(selectedService.price || 0),
-                },
+                appointment: newAppointment,
+            });
+
+            setCreatedAppointment({
+                ...newAppointment,
+                businessId: business.id,
             });
 
             setExistingAppointments((current) => [
@@ -190,7 +200,7 @@ function PublicBookingPage() {
                     date: selectedDate,
                     start,
                     end,
-                    status: 'confirmed',
+                    status: newAppointment.status,
                 },
             ]);
 
@@ -275,6 +285,26 @@ function PublicBookingPage() {
                                     Tu turno quedó registrado correctamente.
                                 </p>
 
+                                {contact.whatsapp && createdAppointment && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            window.open(
+                                                buildBusinessWhatsappConfirmationUrl({
+                                                    businessWhatsapp: contact.whatsapp,
+                                                    appointment: createdAppointment,
+                                                    businessName: company.name,
+                                                }),
+                                                '_blank'
+                                            );
+                                        }}
+                                        className="w-full cursor-pointer max-w-sm mx-auto mb-3 bg-brand-green text-white font-bold px-5 py-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-95 transition-all"
+                                    >
+                                        <MessageCircle size={18} />
+                                        Enviar confirmación por WhatsApp
+                                    </button>
+                                )}
+
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -286,6 +316,7 @@ function PublicBookingPage() {
                                         setCustomerPhone('');
                                         setNotes('');
                                         setBookingCreated(false);
+                                        setCreatedAppointment(null);
                                     }}
                                     className="bg-brand-green cursor-pointer text-white font-bold px-5 py-3 rounded-xl"
                                 >
@@ -325,7 +356,7 @@ function PublicBookingPage() {
                                                         setSelectedProfessional(null);
                                                     }
                                                 }}
-                                                className={`text-left border rounded-2xl p-5 transition-all ${selectedService?.id === service.id
+                                                className={`text-left border rounded-2xl cursor-pointer p-5 transition-all ${selectedService?.id === service.id
                                                     ? 'bg-brand-green text-white border-brand-green'
                                                     : 'bg-brand-surface border-gray-200 text-brand-text hover:scale-[1.01]'
                                                     }`}
@@ -355,7 +386,7 @@ function PublicBookingPage() {
                                                 type="button"
                                                 key={professional.id}
                                                 onClick={() => setSelectedProfessional(professional)}
-                                                className={`text-left border rounded-2xl p-5 transition-all ${selectedProfessional?.id === professional.id
+                                                className={`text-left cursor-pointer border rounded-2xl p-5 transition-all ${selectedProfessional?.id === professional.id
                                                     ? 'bg-brand-green text-white border-brand-green'
                                                     : 'bg-brand-surface border-gray-200 text-brand-text hover:scale-[1.01]'
                                                     }`}
@@ -388,7 +419,7 @@ function PublicBookingPage() {
                                                         setSelectedDate(date.value);
                                                         setSelectedTime('');
                                                     }}
-                                                    className={`border rounded-2xl p-4 text-sm font-bold transition-all ${selectedDate === date.value
+                                                    className={`border rounded-2xl cursor-pointer p-4 text-sm font-bold transition-all ${selectedDate === date.value
                                                         ? 'bg-brand-green text-white border-brand-green'
                                                         : 'bg-brand-surface border-gray-200 text-brand-text'
                                                         }`}
@@ -414,7 +445,7 @@ function PublicBookingPage() {
                                                     type="button"
                                                     key={time}
                                                     onClick={() => setSelectedTime(time)}
-                                                    className={`border rounded-xl p-3 text-sm font-bold transition-all ${selectedTime === time
+                                                    className={`border rounded-xl cursor-pointer p-3 text-sm font-bold transition-all ${selectedTime === time
                                                         ? 'bg-brand-green text-white border-brand-green'
                                                         : 'bg-brand-surface border-gray-200 text-brand-text'
                                                         }`}
@@ -629,6 +660,49 @@ function isAfterMinimumBookingTime(start, minHoursBeforeBooking) {
     );
 
     return startDate >= minimumDate;
+}
+
+function buildBusinessWhatsappConfirmationUrl({
+    businessWhatsapp,
+    appointment,
+    businessName,
+}) {
+    const phone = normalizeUruguayPhone(businessWhatsapp);
+
+    const message = `Hola, hice una reserva desde AgendasYa.
+
+Negocio: ${businessName || 'el negocio'}
+Nombre: ${appointment.customerName}
+WhatsApp: ${appointment.customerPhone}
+Servicio: ${appointment.serviceName}
+Profesional: ${appointment.professionalName}
+Día: ${formatBookingDate(appointment.date)}
+Hora: ${appointment.time}
+
+¿Me confirman si está todo correcto?`;
+
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+function normalizeUruguayPhone(phone) {
+    const cleaned = String(phone || '').replace(/\D/g, '');
+
+    if (cleaned.startsWith('598')) return cleaned;
+
+    return `598${cleaned}`;
+}
+
+function formatBookingDate(dateValue) {
+    if (!dateValue) return '-';
+
+    const date = new Date(`${dateValue}T00:00:00`);
+
+    return date.toLocaleDateString('es-UY', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
 }
 
 export default PublicBookingPage;

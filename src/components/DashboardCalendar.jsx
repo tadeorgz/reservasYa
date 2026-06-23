@@ -76,7 +76,8 @@ function DashboardCalendar({ appointments, onEventClick, onDateSelect }) {
                     slotMaxTime="22:00:00"
                     slotDuration="00:30:00"
                     slotLabelInterval="01:00"
-                    height="650px"
+                    height={isMobile ? 'auto' : '650px'}
+                    contentHeight={isMobile ? 'auto' : 650}
                     stickyHeaderDates
                     dayMaxEvents={2}
                     eventClick={handleEventClick}

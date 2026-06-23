@@ -55,11 +55,17 @@ function AppointmentModal({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-[999] flex items-center justify-center p-4">
-            <div className="bg-brand-bg rounded-3xl shadow-2xl w-full max-w-lg p-6 relative">
+        <div
+            className="fixed inset-0 bg-black/50 z-[999] flex items-center justify-center p-3 sm:p-4"
+            onClick={onClose}
+        >
+            <div
+                className="bg-brand-bg rounded-3xl shadow-2xl w-full max-w-lg max-h-[90dvh] overflow-y-auto p-5 sm:p-6 relative"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 cursor-pointer text-brand-text/60 hover:text-brand-text"
+                    className="absolute top-4 right-4 z-10 cursor-pointer text-brand-text/60 hover:text-brand-text"
                 >
                     <X size={22} />
                 </button>
@@ -122,10 +128,18 @@ function AppointmentModal({
                             </div>
                             <button
                                 type="button"
-                                onClick={() => openCustomerWhatsapp(appointment)}
+                                onClick={() => {
+                                    openCustomerWhatsapp(appointment);
+
+                                    if (appointment.status !== 'confirmed') {
+                                        onUpdateAppointmentStatus(appointment.id, 'confirmed');
+                                    }
+                                }}
                                 className="w-full bg-brand-green text-white cursor-pointer font-bold py-3 rounded-xl hover:opacity-90 transition-all"
                             >
-                                Contactar por WhatsApp
+                                {appointment.status === 'confirmed'
+                                    ? 'Enviar WhatsApp nuevamente'
+                                    : 'Confirmar por WhatsApp'}
                             </button>
                         </div>
                     </div>

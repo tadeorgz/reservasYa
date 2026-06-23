@@ -89,7 +89,7 @@ function LoginPage() {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-brand-accent hover:bg-brand-accent-light disabled:opacity-60 text-brand-text font-bold py-3.5 px-4 rounded-xl transition-all mt-6"
+                    className="w-full bg-brand-accent hover:bg-brand-accent-light cursor-pointer disabled:opacity-60 text-brand-text font-bold py-3.5 px-4 rounded-xl transition-all mt-6"
                 >
                     {isLoading ? 'Ingresando...' : 'Ingresar'}
                 </button>
@@ -97,7 +97,7 @@ function LoginPage() {
                 <button
                     type="button"
                     onClick={() => navigate('/register')}
-                    className="w-full mt-4 text-sm font-semibold text-brand-green hover:underline"
+                    className="w-full mt-4 text-sm font-semibold text-brand-green cursor-pointer hover:underline"
                 >
                     Crear mi negocio
                 </button>
